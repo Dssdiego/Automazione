@@ -1,10 +1,23 @@
 package com.bossdev.automazione
 
+import android.Manifest
+import android.app.Activity
+import android.app.Activity.RESULT_OK
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,9 +35,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.checkSelfPermission
 import com.bossdev.automazione.ui.theme.AutomazioneTheme
 
 private lateinit var audioManager : AudioManager
+private lateinit var bluetoothManager : BluetoothManager
 
 enum class ERingerMode
 {
@@ -46,6 +61,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
+        bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
 
         setContent {
             AutomazioneTheme {
@@ -54,6 +70,52 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        // Example of requesting permissions
+        // TODO: Make this better (and automatic!)
+        if (checkSelfPermission(
+                applicationContext,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1001)
+
+            Toast.makeText(applicationContext, "NO PERMISSION for bluetooth", Toast.LENGTH_SHORT).show()
+
+            return
+        }
+        val bluetoothAdapter = bluetoothManager.adapter
+
+        if (bluetoothAdapter?.isEnabled == false) {
+            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+
+            val enableBluetoothLauncher = registerForActivityResult(
+                StartActivityForResult(),
+                ActivityResultCallback { result: ActivityResult? ->
+                    if (result?.resultCode == RESULT_OK) {
+                        // Bluetooth was enabled successfully
+                        // Proceed with your Bluetooth operations
+                        Toast.makeText(applicationContext, "Bluetooth enabled", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // User denied enabling Bluetooth or an error occurred
+                        // Handle accordingly
+                        Toast.makeText(applicationContext, "Bluetooth denied", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
+
+            enableBluetoothLauncher.launch(enableBtIntent)
+        }
+
+        Toast.makeText(applicationContext, "Set bluetooth", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -142,8 +204,7 @@ fun setMode(mode: EMode)
 
         setMusicVolume(100)
         setRingerMode(ERingerMode.NORMAL)
-
-//                            Toast.makeText(baseContext, "Hello!", Toast.LENGTH_SHORT).show()
+//        setBluetooth()
     }
 }
 
@@ -166,6 +227,11 @@ fun setRingerMode(mode: ERingerMode)
     {
         audioManager.ringerMode = AudioManager.RINGER_MODE_VIBRATE
     }
+}
+
+fun setBluetooth()
+{
+
 }
 
 fun changeWifi() {
