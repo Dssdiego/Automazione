@@ -54,7 +54,8 @@ enum class EMode
 {
     WORK,
     SLEEP,
-    CAR
+    CAR,
+    GRAB_FOOD
 }
 
 enum class EStateChange
@@ -84,9 +85,6 @@ class MainActivity : ComponentActivity() {
         }
 
         getPermission(Manifest.permission.BLUETOOTH_CONNECT)
-
-//        setWifi(EStateChange.DISABLE)
-//        setBluetooth(EStateChange.ENABLE)
     }
 }
 
@@ -111,6 +109,7 @@ fun MainCompose()
         item { MyCard( description = "Work mode",  { setMode(EMode.WORK) } ) }
         item { MyCard( description = "Car Mode",   { setMode(EMode.CAR) } ) }
         item { MyCard( description = "Sleep Mode", { setMode(EMode.SLEEP) } ) }
+        item { MyCard( description = "Grab Food Mode", { setMode(EMode.GRAB_FOOD) } ) }
     }
 }
 
@@ -165,18 +164,18 @@ fun setMode(mode: EMode)
 //
 //                            Toast.makeText(baseContext, "Hello!", Toast.LENGTH_SHORT).show()
 
-        // TODO: Turn on wifi
-        // TODO: Turn off bluetooth
+        setWifi(EStateChange.ENABLE)
+        setBluetooth(EStateChange.DISABLE)
         // TODO: Turn off mobile data
-
         setMusicVolume(100)
         setRingerMode(ERingerMode.VIBRATE)
     }
 
     if (mode == EMode.SLEEP)
     {
-        // TODO: Turn off wifi
-        // TODO: Turn off bluetooth
+        setWifi(EStateChange.DISABLE)
+        setBluetooth(EStateChange.DISABLE)
+
         // TODO: Turn off mobile data
         // TODO: Turn off localization
 
@@ -191,14 +190,27 @@ fun setMode(mode: EMode)
 //
 //                            blManager.getConnectedDevices(0)
 
-        // TODO: Turn off wifi
-        // TODO: Start bluetooth
+        setWifi(EStateChange.DISABLE)
+        setBluetooth(EStateChange.ENABLE)
+
         // TODO: Connect bluetooth to 'X8'
         // TODO: Start mobile data
 
         setMusicVolume(100)
         setRingerMode(ERingerMode.NORMAL)
-//        setBluetooth()
+    }
+
+    if (mode == EMode.GRAB_FOOD)
+    {
+
+        setWifi(EStateChange.ENABLE)
+        setBluetooth(EStateChange.DISABLE)
+
+        // TODO: Turn on localization
+        // TODO: Turn on mobile data
+
+        setMusicVolume(100)
+        setRingerMode(ERingerMode.VIBRATE)
     }
 }
 
