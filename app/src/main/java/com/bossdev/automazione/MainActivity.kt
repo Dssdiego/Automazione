@@ -2,22 +2,15 @@ package com.bossdev.automazione
 
 import android.Manifest
 import android.app.Activity
-import android.app.Activity.RESULT_OK
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +33,16 @@ import com.bossdev.automazione.ui.theme.AutomazioneTheme
 
 private lateinit var audioManager : AudioManager
 private lateinit var bluetoothManager : BluetoothManager
+private lateinit var wifiManager : WifiManager
+
+private lateinit var mainActivity: Activity
+
+private val PERMISSION_REQUEST_CODE = 1001
+
+private val INTENT_WIFI_ENABLE = "android.net.wifi.action.REQUEST_ENABLE"
+private val INTENT_WIFI_DISABLE = "android.net.wifi.action.REQUEST_DISABLE"
+private val INTENT_BLUETOOTH_ENABLE = "android.bluetooth.adapter.action.REQUEST_ENABLE"
+private val INTENT_BLUETOOTH_DISABLE = "android.bluetooth.adapter.action.REQUEST_DISABLE"
 
 enum class ERingerMode
 {
@@ -54,6 +57,12 @@ enum class EMode
     CAR
 }
 
+enum class EStateChange
+{
+    ENABLE,
+    DISABLE
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +71,9 @@ class MainActivity : ComponentActivity() {
 
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+        wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+
+        mainActivity = this
 
         setContent {
             AutomazioneTheme {
@@ -71,51 +83,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Example of requesting permissions
-        // TODO: Make this better (and automatic!)
-        if (checkSelfPermission(
-                applicationContext,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        getPermission(Manifest.permission.BLUETOOTH_CONNECT)
 
-            requestPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT), 1001)
-
-            Toast.makeText(applicationContext, "NO PERMISSION for bluetooth", Toast.LENGTH_SHORT).show()
-
-            return
-        }
-        val bluetoothAdapter = bluetoothManager.adapter
-
-        if (bluetoothAdapter?.isEnabled == false) {
-            val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-
-            val enableBluetoothLauncher = registerForActivityResult(
-                StartActivityForResult(),
-                ActivityResultCallback { result: ActivityResult? ->
-                    if (result?.resultCode == RESULT_OK) {
-                        // Bluetooth was enabled successfully
-                        // Proceed with your Bluetooth operations
-                        Toast.makeText(applicationContext, "Bluetooth enabled", Toast.LENGTH_SHORT).show()
-                    } else {
-                        // User denied enabling Bluetooth or an error occurred
-                        // Handle accordingly
-                        Toast.makeText(applicationContext, "Bluetooth denied", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            )
-
-            enableBluetoothLauncher.launch(enableBtIntent)
-        }
-
-        Toast.makeText(applicationContext, "Set bluetooth", Toast.LENGTH_SHORT).show()
+//        setWifi(EStateChange.DISABLE)
+//        setBluetooth(EStateChange.ENABLE)
     }
 }
 
@@ -158,6 +129,29 @@ fun MyCard(description: String, onClickFn: () -> Unit) {
                 .padding(16.dp),
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+fun getPermission(permission: String)
+{
+    // Example of requesting permissions
+    // TODO: Make this better (and automatic!)
+    if (checkSelfPermission(
+            mainActivity.applicationContext,
+            permission
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        // TODO: Consider calling
+        //    ActivityCompat#requestPermissions
+        // here to request the missing permissions, and then overriding
+        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+        //                                          int[] grantResults)
+        // to handle the case where the user grants the permission. See the documentation
+        // for ActivityCompat#requestPermissions for more details.
+
+        mainActivity.requestPermissions(arrayOf(permission), PERMISSION_REQUEST_CODE)
+
+//        Toast.makeText(activity.applicationContext, "NO PERMISSION for bluetooth", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -229,17 +223,32 @@ fun setRingerMode(mode: ERingerMode)
     }
 }
 
-fun setBluetooth()
+fun setBluetooth(state: EStateChange)
 {
+    if (state == EStateChange.ENABLE)
+    {
+        val intent = Intent(INTENT_BLUETOOTH_ENABLE)
+        mainActivity.startActivity(intent)
+    }
 
+    if (state == EStateChange.DISABLE)
+    {
+        val intent = Intent(INTENT_BLUETOOTH_DISABLE)
+        mainActivity.startActivity(intent)
+    }
 }
 
-fun changeWifi() {
-//    val wifiManager = baseContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-//
-//// To enable Wi-Fi
-//    wifiManager.isWifiEnabled = true
-//
-//// To disable Wi-Fi
-//    wifiManager.isWifiEnabled = false
+fun setWifi(state: EStateChange)
+{
+    if (state == EStateChange.ENABLE)
+    {
+        val intent = Intent(INTENT_WIFI_ENABLE)
+        mainActivity.startActivity(intent)
+    }
+
+    if (state == EStateChange.DISABLE)
+    {
+        val intent = Intent(INTENT_WIFI_DISABLE)
+        mainActivity.startActivity(intent)
+    }
 }
