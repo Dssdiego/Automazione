@@ -13,19 +13,17 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.checkSelfPermission
@@ -78,7 +76,16 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             AutomazioneTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    floatingActionButton = {
+                        AddButton(
+                            modifier = Modifier.padding(),
+                            onClick = {}
+                        )
+                    },
+                    floatingActionButtonPosition = FabPosition.Center
+                ) { innerPadding ->
                     MainCompose()
                 }
             }
@@ -110,24 +117,6 @@ fun MainCompose()
         item { MyCard( description = "Car Mode",   { setMode(EMode.CAR) } ) }
         item { MyCard( description = "Sleep Mode", { setMode(EMode.SLEEP) } ) }
         item { MyCard( description = "Grab Food Mode", { setMode(EMode.GRAB_FOOD) } ) }
-    }
-}
-
-@Composable
-fun MyCard(description: String, onClickFn: () -> Unit) {
-    Card(
-        onClick = onClickFn,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-        ),
-        modifier = Modifier.size(width = 240.dp, height = 100.dp))
-    {
-        Text(
-            text = description,
-            modifier = Modifier
-                .padding(16.dp),
-            textAlign = TextAlign.Center,
-        )
     }
 }
 
