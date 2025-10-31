@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.AudioManager
+import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -91,7 +92,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        getPermission(Manifest.permission.BLUETOOTH_CONNECT)
+        getPermissions(arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.ACCESS_FINE_LOCATION))
     }
 }
 
@@ -120,28 +121,45 @@ fun MainCompose()
     }
 }
 
-fun getPermission(permission: String)
+fun getPermissions(permissions: Array<String>)
 {
-    // Example of requesting permissions
-    // TODO: Make this better (and automatic!)
-    if (checkSelfPermission(
-            mainActivity.applicationContext,
-            permission
-        ) != PackageManager.PERMISSION_GRANTED
-    ) {
-        // TODO: Consider calling
-        //    ActivityCompat#requestPermissions
-        // here to request the missing permissions, and then overriding
-        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-        //                                          int[] grantResults)
-        // to handle the case where the user grants the permission. See the documentation
-        // for ActivityCompat#requestPermissions for more details.
+    var allPermissionsEnabled = false
 
-        mainActivity.requestPermissions(arrayOf(permission), PERMISSION_REQUEST_CODE)
+    permissions.forEach { permission ->
+        allPermissionsEnabled = checkHasPermission(permission)
+    }
 
-//        Toast.makeText(activity.applicationContext, "NO PERMISSION for bluetooth", Toast.LENGTH_SHORT).show()
+    if (!allPermissionsEnabled)
+    {
+        mainActivity.requestPermissions(permissions, PERMISSION_REQUEST_CODE)
     }
 }
+
+fun checkHasPermission(permission: String) : Boolean
+{
+    return checkSelfPermission(mainActivity.applicationContext, permission) == PackageManager.PERMISSION_GRANTED
+}
+
+//    // Example of requesting permissions
+//    // TODO: Make this better (and automatic!)
+//    if (checkSelfPermission(
+//            mainActivity.applicationContext,
+//            permission
+//        ) != PackageManager.PERMISSION_GRANTED
+//    ) {
+//        // TODO: Consider calling
+//        //    ActivityCompat#requestPermissions
+//        // here to request the missing permissions, and then overriding
+//        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//        //                                          int[] grantResults)
+//        // to handle the case where the user grants the permission. See the documentation
+//        // for ActivityCompat#requestPermissions for more details.
+//
+//        mainActivity.requestPermissions(arrayOf(permission), PERMISSION_REQUEST_CODE)
+//
+////        Toast.makeText(activity.applicationContext, "NO PERMISSION for bluetooth", Toast.LENGTH_SHORT).show()
+//    }
+//}
 
 fun setMode(mode: EMode)
 {
