@@ -5,34 +5,47 @@ import android.app.Activity
 import android.bluetooth.BluetoothManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.bossdev.automazione.ui.theme.AutomazioneTheme
 
 private lateinit var audioManager : AudioManager
 private lateinit var bluetoothManager : BluetoothManager
 private lateinit var wifiManager : WifiManager
+private lateinit var locationManager: LocationManager
 
 private lateinit var mainActivity: Activity
 
@@ -72,22 +85,27 @@ class MainActivity : ComponentActivity() {
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
         bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         wifiManager = getSystemService(WIFI_SERVICE) as WifiManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+
+        getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
 
         mainActivity = this
 
         setContent {
+            val showDialog = remember { mutableStateOf(false) }
+
             AutomazioneTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     floatingActionButton = {
                         AddButton(
                             modifier = Modifier.padding(),
-                            onClick = {}
+                            onClick = { showDialog.value = true }
                         )
                     },
                     floatingActionButtonPosition = FabPosition.Center
                 ) { innerPadding ->
-                    MainCompose()
+                    MainCompose(showDialog)
                 }
             }
         }
@@ -100,12 +118,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PreviewMain() {
     AutomazioneTheme {
-        MainCompose()
+        MainCompose(mutableStateOf(false))
     }
 }
 
 @Composable
-fun MainCompose()
+fun MainCompose(showDialog: MutableState<Boolean>)
 {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp),
@@ -118,6 +136,48 @@ fun MainCompose()
         item { MyCard( description = "Car Mode",   { setMode(EMode.CAR) } ) }
         item { MyCard( description = "Sleep Mode", { setMode(EMode.SLEEP) } ) }
         item { MyCard( description = "Grab Food Mode", { setMode(EMode.GRAB_FOOD) } ) }
+    }
+
+    if (showDialog.value) {
+        Dialog(onDismissRequest = { showDialog.value = false }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(375.dp)
+                    .padding(16.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Bottom,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "This is a dialog with buttons and an image.",
+                        modifier = Modifier.padding(16.dp),
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        TextButton(
+                            onClick = { showDialog.value = false },
+                            modifier = Modifier.padding(8.dp),
+                        ) {
+                            Text("Dismiss")
+                        }
+                        TextButton(
+                            onClick = { showDialog.value = false },
+                            modifier = Modifier.padding(8.dp),
+                        ) {
+                            Text("Confirm")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -269,5 +329,20 @@ fun setWifi(state: EStateChange)
     {
         val intent = Intent(INTENT_WIFI_DISABLE)
         mainActivity.startActivity(intent)
+    }
+}
+
+fun setLocation(state: EStateChange)
+{
+    if (state == EStateChange.ENABLE)
+    {
+//        val intent = Intent(INTENT_LOCATION_ENABLE)
+//        mainActivity.startActivity(intent)
+    }
+
+    if (state == EStateChange.DISABLE)
+    {
+//        val intent = Intent(INTENT_LOCATION_DISABLE)
+//        mainActivity.startActivity(intent)
     }
 }
