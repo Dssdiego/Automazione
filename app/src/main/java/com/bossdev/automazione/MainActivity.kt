@@ -10,6 +10,7 @@ import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,20 +22,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.FabPosition
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,6 +81,15 @@ enum class EStateChange
     ENABLE,
     DISABLE
 }
+
+data class AutomationData(
+    val name: String,
+    val wifiChecked: Boolean,
+    val bluetoothChecked: Boolean,
+    val locationChecked: Boolean,
+    val mobileDataChecked: Boolean,
+    val soundVolume: Int
+)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -138,8 +142,10 @@ fun MainCompose(showDialog: MutableState<Boolean>)
 {
     var wifiChecked by remember { mutableStateOf(false) }
     var bluetoothChecked by remember { mutableStateOf(false) }
-    var localizationChecked by remember { mutableStateOf(false) }
+    var locationChecked by remember { mutableStateOf(false) }
     var mobileDataChecked by remember { mutableStateOf(false) }
+
+    val automationNameState = rememberTextFieldState()
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp),
@@ -183,7 +189,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                     }
                     // Name Input
                     OutlinedTextField(
-                        state = rememberTextFieldState(),
+                        state = automationNameState,
                         label = { Text("Name") },
                         modifier = Modifier.padding(16.dp)
                     )
@@ -219,19 +225,19 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                             }
                         )
                     }
-                    // Localization
+                    // Location
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceAround,
                     ) {
                         Text(
-                            text = "Localization",
+                            text = "Location",
                             modifier = Modifier.padding(14.dp),
                         )
                         Switch(
-                            checked = localizationChecked,
+                            checked = locationChecked,
                             onCheckedChange = {
-                                localizationChecked = it
+                                locationChecked = it
                             }
                         )
                     }
@@ -265,6 +271,20 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                         TextButton(
                             onClick = {
                                 showDialog.value = false
+
+                                // TODO: Show error in TextField if "Name" is empty
+                                // TODO: Show slider for sound volume
+
+                                val automationData = AutomationData(
+                                    automationNameState.text.toString(),
+                                    wifiChecked,
+                                    bluetoothChecked,
+                                    locationChecked,
+                                    mobileDataChecked,
+                                    0
+                                )
+
+                                createAutomation(automationData)
                             },
                             modifier = Modifier.padding(8.dp),
                         ) {
@@ -298,6 +318,11 @@ fun checkHasPermission(permission: String) : Boolean
 }
 
 // endregion
+
+fun createAutomation(automationData: AutomationData)
+{
+    Toast.makeText(mainActivity.applicationContext, "Creating automation...", Toast.LENGTH_SHORT).show()
+}
 
 fun setMode(mode: EMode)
 {
