@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Automazione</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_create">Create</string>
+    <string name="dialog_option_location">Location</string>
+    <string name="dialog_option_bluetooth">Bluetooth</string>
+    <string name="dialog_option_wifi">Wifi</string>
+    <string name="dialog_option_name">Name</string>
+    <string name="dialog_option_title">New Automation</string>
+    <string name="dialog_option_mobile_data">Mobile Data</string>
 </resources>

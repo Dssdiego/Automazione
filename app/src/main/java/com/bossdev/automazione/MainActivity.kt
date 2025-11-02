@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -182,7 +183,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = "New Automation",
+                            text = stringResource(R.string.dialog_option_title),
                             fontSize = 24.sp,
                             modifier = Modifier.padding(16.dp),
                         )
@@ -190,7 +191,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                     // Name Input
                     OutlinedTextField(
                         state = automationNameState,
-                        label = { Text("Name") },
+                        label = { Text(stringResource(R.string.dialog_option_name)) },
                         modifier = Modifier.padding(16.dp)
                     )
                     // Wifi
@@ -199,7 +200,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                         horizontalArrangement = Arrangement.SpaceAround,
                     ) {
                         Text(
-                            text = "Wifi",
+                            text = stringResource(R.string.dialog_option_wifi),
                             modifier = Modifier.padding(14.dp),
                         )
                         Switch(
@@ -215,7 +216,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                         horizontalArrangement = Arrangement.SpaceAround,
                     ) {
                         Text(
-                            text = "Bluetooth",
+                            text = stringResource(R.string.dialog_option_bluetooth),
                             modifier = Modifier.padding(14.dp),
                         )
                         Switch(
@@ -231,7 +232,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                         horizontalArrangement = Arrangement.SpaceAround,
                     ) {
                         Text(
-                            text = "Location",
+                            text = stringResource(R.string.dialog_option_location),
                             modifier = Modifier.padding(14.dp),
                         )
                         Switch(
@@ -247,7 +248,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                         horizontalArrangement = Arrangement.SpaceAround,
                     ) {
                         Text(
-                            text = "Mobile Data",
+                            text = stringResource(R.string.dialog_option_mobile_data),
                             modifier = Modifier.padding(14.dp),
                         )
                         Switch(
@@ -266,7 +267,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                             onClick = { showDialog.value = false },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("Cancel")
+                            Text(stringResource(R.string.btn_cancel))
                         }
                         TextButton(
                             onClick = {
@@ -288,7 +289,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                             },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("Create")
+                            Text(stringResource(R.string.btn_create))
                         }
                     }
                 }

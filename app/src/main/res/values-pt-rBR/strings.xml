@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Automazione</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_create">Criar</string>
+    <string name="dialog_option_location">Localização</string>
+    <string name="dialog_option_bluetooth">Bluetooth</string>
+    <string name="dialog_option_wifi">Wifi</string>
+    <string name="dialog_option_name">Nome</string>
+    <string name="dialog_option_title">Nova Automação</string>
+    <string name="dialog_option_mobile_data">Dados Móveis</string>
+</resources>
