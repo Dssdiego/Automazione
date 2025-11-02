@@ -10,7 +10,6 @@ import android.media.AudioManager
 import android.net.ConnectivityManager
 import android.net.wifi.WifiManager
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,22 +21,34 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat.checkSelfPermission
 import com.bossdev.automazione.ui.theme.AutomazioneTheme
@@ -125,6 +136,11 @@ fun PreviewMain() {
 @Composable
 fun MainCompose(showDialog: MutableState<Boolean>)
 {
+    var wifiChecked by remember { mutableStateOf(false) }
+    var bluetoothChecked by remember { mutableStateOf(false) }
+    var localizationChecked by remember { mutableStateOf(false) }
+    var mobileDataChecked by remember { mutableStateOf(false) }
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp),
         contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp),
@@ -138,12 +154,13 @@ fun MainCompose(showDialog: MutableState<Boolean>)
         item { MyCard( description = "Grab Food Mode", { setMode(EMode.GRAB_FOOD) } ) }
     }
 
+    // Show 'Add Dialog'
     if (showDialog.value) {
         Dialog(onDismissRequest = { showDialog.value = false }) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(375.dp)
+                    .height(450.dp)
                     .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
             ) {
@@ -153,26 +170,105 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                     verticalArrangement = Arrangement.Bottom,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        text = "This is a dialog with buttons and an image.",
-                        modifier = Modifier.padding(16.dp),
-                    )
+                    // Title
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = "New Automation",
+                            fontSize = 24.sp,
+                            modifier = Modifier.padding(16.dp),
+                        )
+                    }
+                    // Name Input
+                    OutlinedTextField(
+                        state = rememberTextFieldState(),
+                        label = { Text("Name") },
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    // Wifi
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                    ) {
+                        Text(
+                            text = "Wifi",
+                            modifier = Modifier.padding(14.dp),
+                        )
+                        Switch(
+                            checked = wifiChecked,
+                            onCheckedChange = {
+                                wifiChecked = it
+                            },
+                        )
+                    }
+                    // Bluetooth
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                    ) {
+                        Text(
+                            text = "Bluetooth",
+                            modifier = Modifier.padding(14.dp),
+                        )
+                        Switch(
+                            checked = bluetoothChecked,
+                            onCheckedChange = {
+                                bluetoothChecked = it
+                            }
+                        )
+                    }
+                    // Localization
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                    ) {
+                        Text(
+                            text = "Localization",
+                            modifier = Modifier.padding(14.dp),
+                        )
+                        Switch(
+                            checked = localizationChecked,
+                            onCheckedChange = {
+                                localizationChecked = it
+                            }
+                        )
+                    }
+                    // Mobile Data
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                    ) {
+                        Text(
+                            text = "Mobile Data",
+                            modifier = Modifier.padding(14.dp),
+                        )
+                        Switch(
+                            checked = mobileDataChecked,
+                            onCheckedChange = {
+                                mobileDataChecked = it
+                            },
+                        )
+                    }
+                    // Cancel/Create buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         TextButton(
                             onClick = { showDialog.value = false },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("Dismiss")
+                            Text("Cancel")
                         }
                         TextButton(
-                            onClick = { showDialog.value = false },
+                            onClick = {
+                                showDialog.value = false
+                            },
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text("Confirm")
+                            Text("Create")
                         }
                     }
                 }
@@ -181,6 +277,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
     }
 }
 
+// region Permissions
 fun getPermissions(permissions: Array<String>)
 {
     var allPermissionsEnabled = false
@@ -200,26 +297,7 @@ fun checkHasPermission(permission: String) : Boolean
     return checkSelfPermission(mainActivity.applicationContext, permission) == PackageManager.PERMISSION_GRANTED
 }
 
-//    // Example of requesting permissions
-//    // TODO: Make this better (and automatic!)
-//    if (checkSelfPermission(
-//            mainActivity.applicationContext,
-//            permission
-//        ) != PackageManager.PERMISSION_GRANTED
-//    ) {
-//        // TODO: Consider calling
-//        //    ActivityCompat#requestPermissions
-//        // here to request the missing permissions, and then overriding
-//        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//        //                                          int[] grantResults)
-//        // to handle the case where the user grants the permission. See the documentation
-//        // for ActivityCompat#requestPermissions for more details.
-//
-//        mainActivity.requestPermissions(arrayOf(permission), PERMISSION_REQUEST_CODE)
-//
-////        Toast.makeText(activity.applicationContext, "NO PERMISSION for bluetooth", Toast.LENGTH_SHORT).show()
-//    }
-//}
+// endregion
 
 fun setMode(mode: EMode)
 {
@@ -343,6 +421,21 @@ fun setLocation(state: EStateChange)
     if (state == EStateChange.DISABLE)
     {
 //        val intent = Intent(INTENT_LOCATION_DISABLE)
+//        mainActivity.startActivity(intent)
+    }
+}
+
+fun setMobileData(state: EStateChange)
+{
+    if (state == EStateChange.ENABLE)
+    {
+//        val intent = Intent(INTENT_MOBILE_DATA_ENABLE)
+//        mainActivity.startActivity(intent)
+    }
+
+    if (state == EStateChange.DISABLE)
+    {
+//        val intent = Intent(INTENT_MOBILE_DATA_DISABLE)
 //        mainActivity.startActivity(intent)
     }
 }
