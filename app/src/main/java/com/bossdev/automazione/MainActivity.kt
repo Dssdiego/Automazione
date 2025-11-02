@@ -30,12 +30,14 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -145,6 +147,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
     var bluetoothChecked by remember { mutableStateOf(false) }
     var locationChecked by remember { mutableStateOf(false) }
     var mobileDataChecked by remember { mutableStateOf(false) }
+    var soundSliderPosition by remember { mutableFloatStateOf(0f) }
 
     val automationNameState = rememberTextFieldState()
 
@@ -167,7 +170,7 @@ fun MainCompose(showDialog: MutableState<Boolean>)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(450.dp)
+                    .height(600.dp)
                     .padding(16.dp),
                 shape = RoundedCornerShape(16.dp),
             ) {
@@ -258,6 +261,16 @@ fun MainCompose(showDialog: MutableState<Boolean>)
                             },
                         )
                     }
+                    // Sound slider
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Slider(
+                            value = soundSliderPosition,
+                            onValueChange = { soundSliderPosition = it }
+                        )
+                        Text(text = getSoundSliderPositionStr(soundSliderPosition))
+                    }
                     // Cancel/Create buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -297,6 +310,15 @@ fun MainCompose(showDialog: MutableState<Boolean>)
         }
     }
 }
+
+// region Helpers
+fun getSoundSliderPositionStr(sliderPosition: Float) : String
+{
+    val sliderPercent = sliderPosition * 100
+
+    return sliderPercent.toInt().toString() + " %"
+}
+// endregion
 
 // region Permissions
 fun getPermissions(permissions: Array<String>)
